@@ -1,0 +1,51 @@
+import discord
+from discord import app_commands
+from discord.ext import commands
+
+# وضع الـ Token الخاص بك هنا بعد الحصول عليه من Discord Developer Portal
+TOKEN = 'Your_token_bot'
+
+class DominionBot(commands.Bot):
+    def __init__(self):
+        # تفعيل الخصائص الأساسية
+        intents = discord.Intents.default()
+        super().__init__(command_prefix="!", intents=intents)
+
+    async def setup_hook(self):
+        # مزامنة الأوامر لتظهر كـ Slash Commands
+        await self.tree.sync()
+        print(f"Master, the Dominion Bot is online as {self.user}")
+
+bot = DominionBot()
+
+# بناء أمر /encrypt بجميع الخيارات التي ظهرت في صورتك
+@bot.tree.command(name="encrypt", description="تشفير وربط تخزينة PS4 بحسابك")
+@app_commands.describe(
+    upload_individually="هل تريد رفع الملفات بشكل منفرد؟",
+    include_sce_sys="تضمين ملفات النظام (SCE_SYS)؟",
+    playstation_id="اسم حسابك في PSN (Online ID)"
+)
+async def encrypt(interaction: discord.Interaction, 
+                  upload_individually: bool, 
+                  include_sce_sys: bool, 
+                  playstation_id: str):
+    
+    # 1. الاستجابة الفورية للمستخدم (مثل البوت الأصلي)
+    await interaction.response.send_message(f"🔄 جاري معالجة طلبك يا **{playstation_id}**... يرجى الانتظار.")
+
+    # 2. تصميم الرسالة الاحترافية (Embed)
+    embed = discord.Embed(
+        title="Dominion Encryption Engine",
+        description="جاري الاتصال بخادم المعالجة لتشفير التخزينة...",
+        color=0x7289da # لون أزرق ديسكورد
+    )
+    embed.add_field(name="ID الحساب", value=playstation_id, inline=True)
+    embed.add_field(name="تضمين النظام", value="نعم" if include_sce_sys else "لا", inline=True)
+    embed.set_footer(text="Powered by Aethrys-DOMINION (v2.6.0)")
+
+    # 3. هنا يتم الربط مع "محرك التشفير" (هذا الجزء سأشرحه لك بالأسفل)
+    # logic_process_save(playstation_id, include_sce_sys)
+
+    await interaction.followup.send(embed=embed)
+
+bot.run(TOKEN)
